@@ -1,8 +1,6 @@
 class AddScoreToGames < ActiveRecord::Migration
-  def up
-    rename_column :player, :total_wins, :score
-  end
-  def down
-    rename_column :player, :score, :total_wins
+  def change
+    rename_column :players, :total_wins, :score
+    change_column :players, :score, :integer, default: 0
   end
 end
