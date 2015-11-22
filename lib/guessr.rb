@@ -7,7 +7,7 @@ require "guessr/game"
 require "pry"
 
 module Guessr
-  MAX_NUMBER = 1000
+  MAX_NUMBER = 10
 
   class App
     def initialize
@@ -71,14 +71,26 @@ module Guessr
 
     def take_turn
       @game.show_progress if @game.last_guess
-      guess = prompt("What is your new guess? (1-1000)", /^\d{1,3}$/)
+      guess = prompt("What is your new guess? (1-1000 or Q to quit)", /^[qQ]$|^\d{1,3}$/)
+      exit if guess.downcase == "q"
       @game.make_guess(guess.to_i)
+    end
+
+    def show_high_scores
+      high_scores = Player.select("name,score").order(score: :desc).limit(5);
+      puts "Top 5 Player Scores"
+      high_scores.each do |player|
+        puts "#{player.name} - #{player.score}"
+      end
+      puts
     end
 
     def play_game
       until @game.win?
         take_turn
       end
+      @player.update_score(@game.score)
+      show_high_scores
     end
 
     def play_again?
@@ -98,7 +110,7 @@ module Guessr
   end
 end
 
-binding.pry
+#binding.pry
 
 app = Guessr::App.new
 app.run
